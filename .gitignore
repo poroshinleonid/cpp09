@@ -4,7 +4,9 @@ a.out
 *dSYM*
 *.o
 in.txt
+input.txt
 out.txt
+output.txt
 TODO
 .DS_Store
 *subject*
@@ -12,3 +14,4 @@ easy_find
 span_test
 exec_mutant_stack
 btc
+data.csv
