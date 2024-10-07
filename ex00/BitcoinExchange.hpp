@@ -30,6 +30,7 @@ private:
 
 private:
   std::map<std::string, double> table;
+  static unsigned int month_durations[13];
 };
 
 #endif // BITCOINEXCHANGE_HPP

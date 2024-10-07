@@ -17,3 +17,7 @@ btc
 data.csv
 RPN
 PmergeMe
+testercpp09
+inputstxt/
+tester_cpp09ex00btc.sh
+tester_cpp09ex01rpn.sh
