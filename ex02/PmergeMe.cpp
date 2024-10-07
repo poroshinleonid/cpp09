@@ -7,11 +7,12 @@
 #include <iostream>
 
 PmergeMe::PmergeMe() {}
-PmergeMe::PmergeMe(const PmergeMe &other) {}
-PmergeMe &PmergeMe::operator=(const PmergeMe &other) {}
+PmergeMe::PmergeMe(const PmergeMe &other) {(void)other;}
+PmergeMe &PmergeMe::operator=(const PmergeMe &other) {(void)other;return *this;}
 PmergeMe::~PmergeMe() {}
 
-std::vector<uint32_t>::iterator PmergeMe::parse_number(char *c_str) {
+// std::vector<uint32_t>::iterator PmergeMe::parse_number(char *c_str) {
+uint32_t PmergeMe::parse_number(char *c_str) {
   unsigned long l_result;
   std::string s(c_str);
   l_result = std::stoul(s, NULL, 10);
@@ -19,6 +20,10 @@ std::vector<uint32_t>::iterator PmergeMe::parse_number(char *c_str) {
   if (l_result > UINT_MAX) {
     throw std::overflow_error("Positive integer is too big");
   }
+  result = static_cast<uint32_t>(l_result);
+  // std::vector<uint32_t>::iterator it;
+  // *it = result;
+  return result;
 }
 
 void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &vec) {
@@ -30,7 +35,7 @@ void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &vec) {
   }
 }
 
-void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &deq) {
+void PmergeMe::fill(int argc, char **argv, std::deque<uint32_t> &deq) {
   try {
     std::transform(argv + 1, argv + argc, std::back_inserter(deq),
                    parse_number);
@@ -40,6 +45,7 @@ void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &deq) {
 }
 
 void PmergeMe::sort_vec(int argc, char **argv) {
+  (void)argc;
   std::vector<unsigned int> vec;
   PmergeMe::fill(argc, argv, vec);
   if (vec.empty()) {
@@ -48,4 +54,7 @@ void PmergeMe::sort_vec(int argc, char **argv) {
   }
 }
 
-void PmergeMe::sort_deq(int argc, char **argv) {}
+void PmergeMe::sort_deq(int argc, char **argv) {
+  (void)argc;
+  (void)argv;
+}

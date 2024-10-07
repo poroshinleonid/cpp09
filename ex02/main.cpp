@@ -12,7 +12,7 @@ int main(int argc, char **argv) {
     std::cout << "usage: ./PmergeMe *numbers*" << std::endl;
     return 1;
   }
-
-  std::deque<unsigned int> deq(vec.begin(), vec.end());
+  PmergeMe pm;
+  pm.sort_vec(argc, argv);
   return 0;
 }
