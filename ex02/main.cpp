@@ -13,6 +13,6 @@ int main(int argc, char **argv) {
     return 1;
   }
   PmergeMe pm;
-  pm.sort_vec(argc, argv);
+  pm.sort(argc, argv);
   return 0;
 }
