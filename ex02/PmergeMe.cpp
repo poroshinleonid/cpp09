@@ -58,3 +58,13 @@ void PmergeMe::sort_deq(int argc, char **argv) {
   (void)argc;
   (void)argv;
 }
+
+void PmergeMe::merge_insertion_sort(std::vector<uint32_t> vec) {
+  (void)vec;
+  return;
+}
+
+void PmergeMe::merge_insertion_sort(std::deque<uint32_t> deq) {
+  (void)deq;
+  return;
+}

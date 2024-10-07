@@ -17,8 +17,9 @@ public:
 private:
   void fill(int argc, char **argv, std::vector<uint32_t> &vec);
   void fill(int argc, char **argv, std::deque<uint32_t> &deq);
-  // std::vector<uint32_t>::iterator parse_number(char *c_str);
   static uint32_t parse_number(char *c_str);
+  void merge_insertion_sort(std::vector<uint32_t> vec);
+  void merge_insertion_sort(std::deque<uint32_t> deq);
 
 private:
   std::vector<uint32_t> vec;
