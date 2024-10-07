@@ -109,10 +109,11 @@ void BitcoinExchange::process_req_file(const char *req_filename) const {
         std::cout << "Error: not a number. => " << amount_str << std::endl;
         continue;
       }
-      if (amount_str.find("e") != std::string::npos || 
+      if (amount_str.find("e") != std::string::npos ||
           amount_str.find("x") != std::string::npos ||
           amount_str.find("X") != std::string::npos ||
-          (amount_str.size() > 1 && amount_str[0] == '0' && isdigit(amount_str[1]))) {
+          (amount_str.size() > 1 && amount_str[0] == '0' &&
+           isdigit(amount_str[1]))) {
         std::cout << "Error: not a number. => " << amount_str << std::endl;
         continue;
       }
