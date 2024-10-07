@@ -39,19 +39,18 @@ bool BitcoinExchange::is_date_valid(const std::string &date) const {
   std::istringstream ss(date);
   ss >> std::get_time(&tm, "%Y-%m-%d");
   if (ss.fail()) {
-      return false;
+    return false;
   }
   tm.tm_isdst = -1;
   std::time_t time = std::mktime(&tm);
   if (time == -1) {
-      return false;
+    return false;
   }
   if (date.size() != 10 || date[4] != '-' || date[7] != '-') {
     return false;
   }
-  std::tm* tm_check = std::localtime(&time);
-  return (tm_check->tm_year == tm.tm_year && 
-          tm_check->tm_mon == tm.tm_mon && 
+  std::tm *tm_check = std::localtime(&time);
+  return (tm_check->tm_year == tm.tm_year && tm_check->tm_mon == tm.tm_mon &&
           tm_check->tm_mday == tm.tm_mday);
 }
 
@@ -68,7 +67,8 @@ void BitcoinExchange::process_req_file(const char *req_filename) const {
     return;
   }
   while (std::getline(ifile, line)) {
-    if (line.size() < 14 || line[4] != '-' || line[7] != '-' || line[10] != ' ' || line[11] != '|' || line[12] != ' ') {
+    if (line.size() < 14 || line[4] != '-' || line[7] != '-' ||
+        line[10] != ' ' || line[11] != '|' || line[12] != ' ') {
       std::cout << "Error: bad input. => " << line << std::endl;
       continue;
     }
@@ -89,11 +89,11 @@ void BitcoinExchange::process_req_file(const char *req_filename) const {
         std::cout << "Error: not a number. => " << amount_str << std::endl;
         continue;
       } catch (std::out_of_range) {
-        std::cout << "Error: too large a number. => " << amount_str << std::endl;
+        std::cout << "Error: too large a number. => " << amount_str
+                  << std::endl;
         continue;
       }
       if (endpos != amount_str.size()) {
-        
       }
       if (amount < 0) {
         std::cout << "Error: not a positive number. => " << amount_str
@@ -120,7 +120,8 @@ std::string BitcoinExchange::get_database_date(const std::string &date) const {
     return it->first;
   }
   if (it == table.begin()) {
-    return table.begin()->first;
+    throw std::out_of_range("date too old");
+    // return table.begin()->first;
   }
   --it;
   return it->first;
@@ -128,7 +129,11 @@ std::string BitcoinExchange::get_database_date(const std::string &date) const {
 
 void BitcoinExchange::show_total_cost(const std::string &date,
                                       double amount) const {
-  std::string database_date = get_database_date(date);
-  std::cout << date << " => " << amount << " = "
-            << table.at(database_date) * amount << std::endl;
+  try {
+    std::string database_date = get_database_date(date);
+    std::cout << date << " => " << amount << " = "
+              << table.at(database_date) * amount << std::endl;
+  } catch (std::out_of_range &e) {
+    std::cout << "Error: " << e.what() << " => " << date << std::endl;
+  }
 }
