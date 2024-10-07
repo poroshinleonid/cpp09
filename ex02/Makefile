@@ -1,7 +1,8 @@
 CPP = "c++"
 CPPFLAGS = -Wall -Wextra -Werror -std=c++17
-NAME = 
-SRCS = main.cpp
+NAME = PmergeMe
+SRCS = main.cpp \
+				PmergeMe.cpp
 
 OBJS = $(SRCS:.cpp=.o)
 
