@@ -104,12 +104,14 @@ void PmergeMe::sort(int argc, char **argv) {
   }
   std::cout << std::endl;
 
-  std::cout << "After: ";
+  std::cout << "After : ";
   for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
        it++) {
     std::cout << *it << " ";
   }
   std::cout << std::endl;
+  
+  //FIX - out numbers to a file and run some script that ensures they are sorted and no numbers lost and etc
 
   std::cout << "Time to process a range of " << vec.size()
             << " elements with std::vector : " << duration_vec.count() << "us"
@@ -126,8 +128,9 @@ int get_tk(int k) {
 }
 
 size_t PmergeMe::genereate_next_chunk_len(size_t old_chunk_index) {
-  int pow = 1 < (old_chunk_index + 1);
+  int pow = 1 << (old_chunk_index + 1);
   int sign = ((old_chunk_index & 1) ? (-1) : (1));
+  std::cout << "generated chunk_len " << (pow + sign) / 3 << " from index " << old_chunk_index << std::endl;
   return (pow + sign) / 3;
 }
 
@@ -170,27 +173,37 @@ std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
   size_t start = 3;
   size_t chunk_len = 2;
   size_t chunk_index = 2;
-  while (sequence.size() < size) {
+  while (sequence.size() < size && start < size) {
+      std::cout << "start=" << start << ", chunk_len=" << chunk_len << ", size()=" << sequence.size() << ", size=" << size <<std::endl;
     for (size_t i = start + chunk_len - 1; i >= start; i--) {
       sequence.push_back(i - 1);
       if (sequence.size() > size) {
-
         std::cout << "Insertion sequence: ";
         for (std::vector<size_t>::iterator it = sequence.begin();
              it != sequence.end(); it++) {
           std::cout << *it << " ";
         }
         std::cout << std::endl;
-
         return sequence;
       }
     }
+        std::cout << "Insertion sequence: ";
+        for (std::vector<size_t>::iterator it = sequence.begin();
+             it != sequence.end(); it++) {
+          std::cout << *it << " ";
+        }
+        std::cout << std::endl;
     start += chunk_len;
     chunk_len = genereate_next_chunk_len(chunk_index);
     if (start + chunk_len > size) {
+      std::cout << "REDUCING CHUNK LEN" << "start=" << start << ", chunk_len=" << chunk_len << ", size()=" << sequence.size() << ", size=" << size <<std::endl;
       chunk_len = size - start;
+      std::cout << "reduced chunk_len " << chunk_len << std::endl;
     }
     chunk_index++;
+    if (chunk_index > 32) {
+      abort();
+    }
     // std::cout << size << " " << sequence.size() << std::endl;
   }
   std::cout << "Insertion sequence: ";
@@ -227,7 +240,11 @@ void PmergeMe::bin_insert(std::vector<uint32_t> &result, size_t upper_pos,
   std::vector<uint32_t>::iterator pos =
       bin_search(result, 0, upper_pos, lower_val);
       // std::cout << "binsearch insertion pos: " << *pos << std::endl;
-  result.insert(pos, lower_val);
+  if (pos == result.end()) {
+    result.push_back(lower_val);
+  } else {
+    result.insert(pos, lower_val);
+  }
 
   std::cout << "result after insert: ";
   for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
@@ -243,7 +260,7 @@ std::vector<uint32_t>::iterator PmergeMe::bin_search(std::vector<uint32_t> &vec,
                                                      uint32_t value) {
                                                       (void)begin;
   std::vector<uint32_t>::iterator it = vec.begin();
-  std::vector<uint32_t>::iterator ite = vec.begin() + end;
+  std::vector<uint32_t>::iterator ite = vec.begin() + end - 1;
   std::vector<uint32_t>::iterator res_it;
   res_it = std::lower_bound(it, ite, value);
   return res_it;
@@ -284,7 +301,7 @@ void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
   std::vector<uint32_t> result(upper);
   result.insert(result.begin(), lower_map[upper[0]]);
 
-  std::cout << "result befor insert: ";
+  std::cout << "result beforee insert: ";
   for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
        it++) {
     std::cout << *it << " ";
