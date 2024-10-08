@@ -131,29 +131,40 @@ size_t PmergeMe::genereate_next_chunk_len(size_t old_chunk_index) {
   return (pow + sign) / 3;
 }
 
+// FIX
+// let's say seq is 4,3;6,5;12,11...
+// we have 5 total elements
+// so instead of 4,3;6,5
+// it should  be 4,3;5
+// so when one chunk is finished,
+// before creating new chunk we check
+// and if the biggest index in this chunk is greater than vec.size()
+//  (in our case its 6 when size is only 5)
+//  then we should lower the biggest number of the chunk down to size
+
 std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
   std::cout << "Generating insertion order of size " << size << std::endl;
   std::vector<size_t> sequence;
   if (size == 1) {
-    sequence.push_back(3 - 1);
+    sequence.push_back(3 - 2);
     return sequence;
   }
   if (size == 2) {
-    sequence.push_back(4 - 1);
-    sequence.push_back(3 - 1);
+    sequence.push_back(4 - 2);
+    sequence.push_back(3 - 2);
     return sequence;
   }
   if (size == 3) {
-    sequence.push_back(4 - 1);
-    sequence.push_back(3 - 1);
-    sequence.push_back(6 - 1);
+    sequence.push_back(4 - 2);
+    sequence.push_back(3 - 2);
+    sequence.push_back(5 - 2);
     return sequence;
   }
   if (size == 4) {
-    sequence.push_back(4 - 1);
-    sequence.push_back(3 - 1);
-    sequence.push_back(6 - 1);
-    sequence.push_back(5 - 1);
+    sequence.push_back(4 - 2);
+    sequence.push_back(3 - 2);
+    sequence.push_back(6 - 2);
+    sequence.push_back(5 - 2);
     return sequence;
   }
   size_t start = 3;
@@ -163,11 +174,22 @@ std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
     for (size_t i = start + chunk_len - 1; i >= start; i--) {
       sequence.push_back(i - 1);
       if (sequence.size() > size) {
+
+        std::cout << "Insertion sequence: ";
+        for (std::vector<size_t>::iterator it = sequence.begin();
+             it != sequence.end(); it++) {
+          std::cout << *it << " ";
+        }
+        std::cout << std::endl;
+
         return sequence;
       }
     }
     start += chunk_len;
     chunk_len = genereate_next_chunk_len(chunk_index);
+    if (start + chunk_len > size) {
+      chunk_len = size - start;
+    }
     chunk_index++;
     // std::cout << size << " " << sequence.size() << std::endl;
   }
@@ -180,21 +202,48 @@ std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
   return sequence;
 }
 
+// inserts lower_val into result
+// searches bin_search the position
+// from result[0] to result[upper_pos] (the latter not included);
+// lower_val is not needed
 void PmergeMe::bin_insert(std::vector<uint32_t> &result, size_t upper_pos,
-                          uint32_t upper_val, uint32_t lower_val) {
+                          uint32_t lower_val) {
   // binary insert between the beginning of the array and upper_pos
-  (void)upper_val;
+
+  std::cout << "calling bin_insert on UP=" << upper_pos
+            << ", val= " << lower_val << ", vec: ";
+  for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
+       it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
+  std::cout << "result befor insert: ";
+  for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
+       it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
+
   std::vector<uint32_t>::iterator pos =
       bin_search(result, 0, upper_pos, lower_val);
+      // std::cout << "binsearch insertion pos: " << *pos << std::endl;
   result.insert(pos, lower_val);
+
+  std::cout << "result after insert: ";
+  for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
+       it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
 }
 
 // should return the element BEFORE which we will insert our value
 std::vector<uint32_t>::iterator PmergeMe::bin_search(std::vector<uint32_t> &vec,
                                                      size_t begin, size_t end,
                                                      uint32_t value) {
-  std::vector<uint32_t>::iterator it = vec.begin() + begin;
-  std::vector<uint32_t>::iterator ite = vec.begin() + end - 1;
+                                                      (void)begin;
+  std::vector<uint32_t>::iterator it = vec.begin();
+  std::vector<uint32_t>::iterator ite = vec.begin() + end;
   std::vector<uint32_t>::iterator res_it;
   res_it = std::lower_bound(it, ite, value);
   return res_it;
@@ -234,24 +283,42 @@ void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
   merge_insertion_sort(upper);
   std::vector<uint32_t> result(upper);
   result.insert(result.begin(), lower_map[upper[0]]);
+
+  std::cout << "result befor insert: ";
+  for (std::vector<uint32_t>::iterator it = result.begin(); it != result.end();
+       it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
+
   lower_map.erase(result[0]);
   std::cout << "Generating insertion order for vector result of size "
             << upper.size() << std::endl;
   std::vector<size_t> insertion_order =
-      generate_insertion_order(upper.size() - 2);
+      generate_insertion_order(upper.size() - 1);
   for (size_t i = 0; i < insertion_order.size(); i++) {
     size_t &cur_upper_index = insertion_order[i];
     if (cur_upper_index >= upper.size()) {
       break;
     }
     // what does i do here?
-    bin_insert(result, i, upper[cur_upper_index],
+    bin_insert(result, insertion_order[i] + 3,
                lower_map[upper[cur_upper_index]]);
   }
   // FIX can't insert an orphan
-  // if (is_odd) {
-  //   bin_insert(result, orphan, 0, result.size());
-  // }
+  if (is_odd) {
+
+    std::cout << "Orphan insert: " << orphan
+              << ", result.size() = " << result.size() << ", result: ";
+    for (std::vector<uint32_t>::iterator it = result.begin();
+         it != result.end(); it++) {
+      std::cout << *it << " ";
+    }
+    std::cout << std::endl;
+
+    bin_insert(result, result.size() + 1, orphan);
+    std::cout << std::endl;
+  }
   (void)orphan;
   vec = result;
   return;

@@ -29,7 +29,7 @@ private:
   size_t genereate_next_chunk_len(size_t old_chunk_index);
   std::vector<size_t> generate_insertion_order(size_t size);
   void bin_insert(std::vector<uint32_t> &result, size_t upper_pos,
-                  uint32_t upper_val, uint32_t lower_val);
+                  uint32_t lower_val);
   std::vector<uint32_t>::iterator bin_search(std::vector<uint32_t> &vec,
                                              size_t begin, size_t end,
                                              uint32_t value);
