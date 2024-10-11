@@ -24,10 +24,10 @@ private:
   static uint32_t parse_number(char *c_str);
   void merge_insertion_sort(std::vector<uint32_t> &vec);
   void merge_insertion_sort(std::deque<uint32_t> &deq);
-
+public:
+  std::vector<size_t> generate_insertion_order(size_t size);
 private:
   size_t genereate_next_chunk_len(size_t old_chunk_index);
-  std::vector<size_t> generate_insertion_order(size_t size);
   void bin_insert(std::vector<uint32_t> &result, size_t upper_pos,
                   uint32_t lower_val);
   std::vector<uint32_t>::iterator bin_search(std::vector<uint32_t> &vec,
