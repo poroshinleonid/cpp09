@@ -21,3 +21,8 @@ testercpp09
 inputstxt/
 tester_cpp09ex00btc.sh
 tester_cpp09ex01rpn.sh
+ex02/out2.txt
+ex02/out3.txt
+ex02/test.sh
+ex02/tester.py
+ex02/to_do
