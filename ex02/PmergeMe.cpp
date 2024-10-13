@@ -21,6 +21,43 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
 }
 PmergeMe::~PmergeMe() {}
 
+/*          The sorting functions          */
+
+void PmergeMe::sort(int argc, char **argv) {
+  sort_vec(argc, argv);
+  if (vec.empty()) {
+    std::cout << "Error" << std::endl;
+    return;
+  }
+  sort_deq(argc, argv);
+  if (deq.empty()) {
+    std::cout << "Error" << std::endl;
+    return;
+  }
+  std::cout << "Before: ";
+  for (std::vector<uint32_t>::iterator it = vec.begin();
+       it != vec.end(); it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
+
+  std::cout << "After : ";
+  for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
+       it++) {
+    std::cout << *it << " ";
+  }
+  std::cout << std::endl;
+  
+  std::cout << "Time to process a range of " << vec.size()
+            << " elements with std::vector : " << duration_vec
+            << std::endl;
+  std::cout << "Time to process a range of " << deq.size()
+            << " elements with std::deque : " << duration_deq
+            << std::endl;
+}
+
+/*          The utility functions          */
+
 uint32_t PmergeMe::parse_number(char *c_str) {
   unsigned long long l_result;
   std::string s(c_str);
@@ -39,6 +76,7 @@ void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &vec) {
     std::transform(argv + 1, argv + argc, std::back_inserter(vec),
                    parse_number);
   } catch (std::exception &e) {
+    std::cout << "Can't parse the input" << std::endl;
     vec.clear();
   }
 }
@@ -52,22 +90,58 @@ void PmergeMe::fill(int argc, char **argv, std::deque<uint32_t> &deq) {
   }
 }
 
+std::string PmergeMe::get_time_str(std::chrono::high_resolution_clock::time_point end, std::chrono::high_resolution_clock::time_point start) {
+    std::chrono::nanoseconds duration_ns = std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
+    std::ostringstream ss;
+    long long total_nanoseconds = duration_ns.count();
+    long long seconds = total_nanoseconds / 1'000'000'000;
+    total_nanoseconds %= 1'000'000'000;
+    long long milliseconds = total_nanoseconds / 1'000'000;
+    total_nanoseconds %= 1'000'000;
+    long long microseconds = total_nanoseconds / 1'000;
+    long long nanoseconds_remaining = total_nanoseconds % 1'000;
+    if (seconds > 0) {
+        ss << seconds << " seconds ";
+    }
+    if (milliseconds > 0 || seconds > 0) {
+        ss << milliseconds << " milliseconds ";
+    }
+    if (microseconds > 0 || milliseconds > 0 || seconds > 0) {
+        ss << microseconds << " microseconds ";
+    }
+    if (nanoseconds_remaining > 0 || microseconds > 0 || milliseconds > 0 || seconds > 0) {
+        ss << nanoseconds_remaining << " nanoseconds";
+    }
+    return ss.str();
+}
+
 void PmergeMe::sort_vec(int argc, char **argv) {
+  duration_vec = "1 workd";
+
+  // PmergeMe::fill(argc, argv, original_vec);
+  PmergeMe::fill(argc, argv, vec);
   std::chrono::high_resolution_clock::time_point start =
       std::chrono::high_resolution_clock::now();
-  PmergeMe::fill(argc, argv, vec);
   // FIX move uniq check up the stack
+  duration_vec = "2 workd";
+
   if (vec.empty() ||
       std::unordered_set<uint32_t>(vec.begin(), vec.end()).size() !=
           vec.size()) {
+    vec.clear();
+    std::cout << "The numbers are not unique" << std::endl;
     return;
   }
+  duration_vec = "3 workd";
+
   merge_insertion_sort(vec);
+  duration_vec = "4 workd";
+
   std::chrono::high_resolution_clock::time_point end =
       std::chrono::high_resolution_clock::now();
-  duration_vec =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-  PmergeMe::fill(argc, argv, original_vec);
+  duration_vec = "TEST workd";
+  duration_vec = get_time_str(end, start);
+  return;
 }
 
 void PmergeMe::sort_deq(int argc, char **argv) {
@@ -77,76 +151,27 @@ void PmergeMe::sort_deq(int argc, char **argv) {
   if (deq.empty() ||
       std::unordered_set<uint32_t>(deq.begin(), deq.end()).size() !=
           deq.size()) {
+    deq.clear();
+    std::cout << "The numbers are not unique" << std::endl;
     return;
   }
   merge_insertion_sort(deq);
   std::chrono::high_resolution_clock::time_point end =
       std::chrono::high_resolution_clock::now();
-  duration_deq =
-      std::chrono::duration_cast<std::chrono::nanoseconds>(end - start);
-}
-
-void PmergeMe::sort(int argc, char **argv) {
-  sort_vec(argc, argv);
-  if (vec.empty()) {
-    std::cout << "Error" << std::endl;
-    return;
-  }
-  sort_deq(argc, argv);
-  if (deq.empty()) {
-    std::cout << "Error" << std::endl;
-    return;
-  }
-  std::cout << "Before: ";
-  for (std::vector<uint32_t>::iterator it = original_vec.begin();
-       it != original_vec.end(); it++) {
-    std::cout << *it << " ";
-  }
-  std::cout << std::endl;
-
-  std::cout << "After : ";
-  for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
-       it++) {
-    std::cout << *it << " ";
-  }
-  std::cout << std::endl;
-  
-  //FIX - out numbers to a file and run some script that ensures they are sorted and no numbers lost and etc
-
-  std::cout << "Time to process a range of " << vec.size()
-            << " elements with std::vector : " << duration_vec.count() << "us"
-            << std::endl;
-  std::cout << "Time to process a range of " << deq.size()
-            << " elements with std::deque : " << duration_deq.count() << "us"
-            << std::endl;
-}
-
-int get_tk(int k) {
-  int pow = 1 < (k + 1);
-  int sign = ((k & 1) ? (-1) : (1));
-  return (pow + sign) / 3;
+  (void)end;(void)start;
+  duration_deq = "hello workd";
+  // duration_deq = get_time_str(end, start);
+  // duration_deq = end - start;
+      // std::chrono::duration_cast<double>(end - start);
 }
 
 size_t PmergeMe::genereate_next_chunk_len(size_t old_chunk_index) {
   int pow = 1 << (old_chunk_index + 1);
   int sign = ((old_chunk_index & 1) ? (-1) : (1));
-  int result = (pow + sign) / 3 + 1;
-  // std::cout << "generated chunk_len " << result << " from index " << old_chunk_index << std::endl;
+  int result = (pow + sign) / 3;
   return result;
 }
 
-// FIX
-// let's say seq is 4,3;6,5;12,11...
-// we have 5 total elements
-// so instead of 4,3;6,5
-// it should  be 4,3;5
-// so when one chunk is finished,
-// before creating new chunk we check
-// and if the biggest index in this chunk is greater than vec.size()
-//  (in our case its 6 when size is only 5)
-//  then we should lower the biggest number of the chunk down to size
-
-//returns indices as in the book minus one (the first we move to the beginning in advance)
 std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
   // std::cout << "Generating insertion order of size " << size << std::endl;
   std::vector<size_t> sequence;
@@ -172,45 +197,41 @@ std::vector<size_t> PmergeMe::generate_insertion_order(size_t size) {
     sequence.push_back(3);
     return sequence;
   }
-  size_t start = 3;
+
+  size_t chunk_start_pos = 0;
   size_t chunk_len = 2;
   size_t chunk_index = 2;
-  while (sequence.size() < size && start < size) {
-      // std::cout << "start=" << start << ", chunk_len=" << chunk_len << ", size()=" << sequence.size() << ", size=" << size <<std::endl;
-    for (size_t i = start + chunk_len - 1; i >= start; i--) {
-      sequence.push_back(i - 1);
-      if (sequence.size() > size) {
-        // std::cout << "Insertion sequence: ";
-        // for (std::vector<size_t>::iterator it = sequence.begin();
-        //      it != sequence.end(); it++) {
-        //   std::cout << *it << " ";
-        // }
-        // std::cout << std::endl;
-        return sequence;
+  size_t cur_ai;
+  while (sequence.size() < size) {
+    cur_ai = chunk_start_pos + chunk_len;
+    chunk_start_pos += chunk_len;
+    while (chunk_len > 0) {
+      if (cur_ai <= size) {
+        sequence.push_back(cur_ai);
       }
+      chunk_len--;
+      cur_ai--;
     }
-        // std::cout << "Insertion sequence: ";
-        // for (std::vector<size_t>::iterator it = sequence.begin();
-        //      it != sequence.end(); it++) {
-        //   std::cout << *it << " ";
-        // }
-        // std::cout << std::endl;
-    start += chunk_len;
     chunk_len = genereate_next_chunk_len(chunk_index);
-    if (start + chunk_len > size) {
-      // std::cout << "REDUCING CHUNK LEN" << "start=" << start << ", chunk_len=" << chunk_len << ", size()=" << sequence.size() << ", size=" << size <<std::endl;
-      chunk_len = size - start;
-      // std::cout << "reduced chunk_len " << chunk_len << std::endl;
-    }
     chunk_index++;
-    // std::cout << size << " " << sequence.size() << std::endl;
   }
-  // std::cout << "Insertion sequence: ";
-  // for (std::vector<size_t>::iterator it = sequence.begin();
-  //      it != sequence.end(); it++) {
-  //   std::cout << *it << " ";
+  // size_t start = 1;
+  // size_t chunk_len = 2;
+  // size_t chunk_index = 2;
+  // while (sequence.size() <= size) {
+  //   for (size_t i = start + chunk_len - 1; i >= start; i--) {
+  //     sequence.push_back(i - 1);
+  //     if (sequence.size() > size) {
+  //       return sequence;
+  //     }
+  //   }
+  //   start += chunk_len;
+  //   chunk_len = genereate_next_chunk_len(chunk_index);
+  //   if (start + chunk_len > size) {
+  //     chunk_len = size - start;
+  //   }
+  //   chunk_index++;
   // }
-  // std::cout << std::endl;
   return sequence;
 }
 
@@ -263,13 +284,13 @@ std::vector<uint32_t>::iterator PmergeMe::bin_search(std::vector<uint32_t> &vec,
 }
 
 void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
-  std::cout << "NEW FUNCTION CALLED ON: ";
-  // std::cout << "Performing sort on vec: ";
-  for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
-       it++) {
-    std::cout << *it << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "NEW FUNCTION CALLED ON: ";
+  // // std::cout << "Performing sort on vec: ";
+  // for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
+  //      it++) {
+  //   std::cout << *it << " ";
+  // }
+  // std::cout << std::endl;
 
   if (vec.size() < 2) {
     return;
@@ -293,6 +314,12 @@ void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
     upper.push_back(min_max.second);
     lower_map[min_max.second] = min_max.first;
   }
+  // std::cout << "MAPPED ";
+  // for (std::unordered_map<uint32_t, uint32_t>::iterator it = lower_map.begin(); it != lower_map.end(); it++) {
+  //   std::cout << "[" << it->first << ":" << it->second << "], ";
+  // }
+  // std::cout << std::endl;
+
   merge_insertion_sort(upper);
   std::vector<uint32_t> result(upper);
   result.insert(result.begin(), lower_map[upper[0]]);
@@ -309,18 +336,18 @@ void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
   //           << upper.size() << std::endl;
   std::vector<size_t> insertion_order =
       generate_insertion_order(upper.size());
-  std::cout << "Generated insertion order: ";
-  for (std::vector<size_t>::iterator it = insertion_order.begin(); it != insertion_order.end();
-       it++) {
-    std::cout << *it << " ";
-  }
-  std::cout << std::endl; 
+  // std::cout << "Generated insertion order: ";
+  // for (std::vector<size_t>::iterator it = insertion_order.begin(); it != insertion_order.end();
+  //      it++) {
+  //   std::cout << *it << " ";
+  // }
+  // std::cout << std::endl; 
 
-  for (size_t i = 0, j = 2; i < insertion_order.size(); i++, j++) {
+  for (size_t i = 0, j = 10; i < insertion_order.size(); i++, j++) {
     size_t &cur_upper_index = insertion_order[i];
     // size_t &cur_upper_index = insertion_order[i];
     if (cur_upper_index >= upper.size()) {
-      std::cout << "cur upper index: " << cur_upper_index << ", upper size: " << upper.size() << ", " << std::endl;
+      // std::cout << "cur upper index: " << cur_upper_index << ", upper size: " << upper.size() << ", " << std::endl;
       continue;
     }
     // what does i do here?
@@ -341,17 +368,17 @@ void PmergeMe::merge_insertion_sort(std::vector<uint32_t> &vec) {
     // }
     // std::cout << std::endl;
 
-    bin_insert(result, result.size(), orphan);
+    bin_insert(result, result.size() + 1, orphan);
   }
   (void)orphan;
   vec = result;
 
-  std::cout << "STACK DUMP: ";
-  for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
-       it++) {
-    std::cout << *it << " ";
-  }
-  std::cout << std::endl;
+  // std::cout << "STACK DUMP: ";
+  // for (std::vector<uint32_t>::iterator it = vec.begin(); it != vec.end();
+  //      it++) {
+  //   std::cout << *it << " ";
+  // }
+  // std::cout << std::endl;
 
   return;
 }

@@ -5,6 +5,8 @@
 #include <cstdint>
 #include <deque>
 #include <vector>
+#include <sstream>
+
 
 class PmergeMe {
 public:
@@ -33,13 +35,14 @@ private:
   std::vector<uint32_t>::iterator bin_search(std::vector<uint32_t> &vec,
                                              size_t begin, size_t end,
                                              uint32_t value);
+  std::string get_time_str(std::chrono::high_resolution_clock::time_point end, std::chrono::high_resolution_clock::time_point start);
+
 
 private:
   std::vector<uint32_t> vec;
-  std::vector<uint32_t> original_vec;
   std::deque<uint32_t> deq;
-  std::chrono::nanoseconds duration_vec;
-  std::chrono::nanoseconds duration_deq;
+  std::string duration_deq;
+  std::string duration_vec;
 };
 
 #endif // PMERGEME_HPP
