@@ -204,8 +204,8 @@ void PmergeMe::fill(int argc, char **argv, std::vector<uint32_t> &vec) {
     std::transform(argv + 1, argv + argc, std::back_inserter(vec),
                    parse_number);
   } catch (std::exception &e) {
-    std::cout << "Can't parse the input" << std::endl;
     vec.clear();
+    return;
   }
 }
 
