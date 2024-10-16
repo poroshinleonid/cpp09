@@ -54,6 +54,7 @@ private:
   std::deque<uint32_t> deq;
   std::string duration_deq;
   std::string duration_vec;
+  std::vector<uint32_t> original_vec;
 };
 
 #endif // PMERGEME_HPP

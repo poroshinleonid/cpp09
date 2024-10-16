@@ -29,4 +29,5 @@ format:
 leaks: all
 	valgrind --leak-check=full ./$(NAME)
 
-# ./PmergeMe `shuf -i 1-100 -n 6 | tr "\n" " "` > out.txt
+# seq 1 10000 | sort -R | head -n 1000
+
