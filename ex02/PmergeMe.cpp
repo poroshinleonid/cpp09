@@ -5,12 +5,12 @@
 #include <cstdint>
 #include <deque>
 #include <iostream>
+#include <set>
 #include <sstream>
 #include <stdint.h>
 #include <string>
 #include <unistd.h>
 #include <unordered_map>
-#include <set>
 #include <utility>
 #include <vector>
 
@@ -29,7 +29,8 @@ bool PmergeMe::are_uniq(int argc, char **argv) {
   std::set<uint32_t> s(original_vec.begin(), original_vec.end());
 
   if (s.size() != original_vec.size()) {
-    std::cout << "numbers: " << original_vec.size() << ", unique numbers: " << s.size() << std::endl;
+    std::cout << "numbers: " << original_vec.size()
+              << ", unique numbers: " << s.size() << std::endl;
     return false;
   }
   return true;
@@ -169,8 +170,8 @@ void PmergeMe::merge_insertion_sort(std::deque<uint32_t> &deq) {
 
 void PmergeMe::print_result() {
   std::cout << "Before: ";
-  for (std::vector<uint32_t>::iterator it = original_vec.begin(); it != original_vec.end();
-       it++) {
+  for (std::vector<uint32_t>::iterator it = original_vec.begin();
+       it != original_vec.end(); it++) {
     std::cout << *it << " ";
   }
   std::cout << std::endl;
