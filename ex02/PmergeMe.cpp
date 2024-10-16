@@ -5,13 +5,14 @@
 #include <cstdint>
 #include <deque>
 #include <iostream>
+#include <sstream>
 #include <stdint.h>
 #include <string>
 #include <unistd.h>
 #include <unordered_map>
+#include <unordered_set>
 #include <utility>
 #include <vector>
-#include <sstream>
 
 PmergeMe::PmergeMe() {}
 PmergeMe::PmergeMe(const PmergeMe &other) { (void)other; }
@@ -22,6 +23,15 @@ PmergeMe &PmergeMe::operator=(const PmergeMe &other) {
 PmergeMe::~PmergeMe() {}
 
 /*          The sorting functions          */
+
+bool PmergeMe::are_uniq(int argc, char **argv) {
+  std::vector<uint32_t> v;
+  fill(argc, argv, v);
+  if (std::unordered_set<uint32_t>(v.begin(), v.end()).size() != v.size()) {
+    return false;
+  }
+  return true;
+}
 
 void PmergeMe::sort(int argc, char **argv) {
   sort_vec(argc, argv);
@@ -38,7 +48,7 @@ void PmergeMe::sort(int argc, char **argv) {
 }
 
 void PmergeMe::sort_vec(int argc, char **argv) {
-  PmergeMe::fill(argc, argv, vec);
+  fill(argc, argv, vec);
   std::chrono::high_resolution_clock::time_point start =
       std::chrono::high_resolution_clock::now();
   if (vec.empty()) {
@@ -53,7 +63,7 @@ void PmergeMe::sort_vec(int argc, char **argv) {
 }
 
 void PmergeMe::sort_deq(int argc, char **argv) {
-  PmergeMe::fill(argc, argv, deq);
+  fill(argc, argv, deq);
   std::chrono::high_resolution_clock::time_point start =
       std::chrono::high_resolution_clock::now();
   if (deq.empty()) {

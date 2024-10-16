@@ -15,6 +15,7 @@ public:
   ~PmergeMe();
 
 public:
+  bool are_uniq(int argc, char **argv);
   void sort(int argc, char **argv);
   void sort_vec(int argc, char **argv);
   void sort_deq(int argc, char **argv);
